@@ -73,7 +73,6 @@ export default class MultiselectCombobox extends LightningElement {
         }
         let input = this.template.querySelector("input");
         input.focus();
-        this.sendValues();
     }
 
     sendValues(){
@@ -98,13 +97,11 @@ export default class MultiselectCombobox extends LightningElement {
         if (this.value.length > 1) {
             this.inputValue = this.value.length + ' options selected';
         }
-        else if (this.value.length === 1) {
+        else{
             this.inputValue = this.value[0].label;
-        }
-        else {
-            this.inputValue = 'All';
-        }
+        }        
         listBoxOption.classList.toggle("slds-is-selected");
+        this.sendValues();
     }
     dropDownInFocus = false;
 
