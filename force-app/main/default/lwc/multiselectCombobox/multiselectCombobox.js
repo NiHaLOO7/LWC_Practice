@@ -3,7 +3,19 @@ import { LightningElement, api, track } from 'lwc';
 export default class MultiselectCombobox extends LightningElement {
 
     @api label = "";
-    _disabled = false;
+
+    @track value = [];                  // list of all the selected options
+    @track inputValue;                  // label that is shown in the input of the combobox
+    @track inputOptions;                // List of all the options
+    
+    // Flags
+    @track hasRendered;
+    @track comboboxIsRendered;
+    @track dropDownInFocus = false;
+
+    // Disabler.. passed from the parent using setter.
+    @track _disabled = false;
+
     @api
     get disabled(){
         return this._disabled;
@@ -12,23 +24,18 @@ export default class MultiselectCombobox extends LightningElement {
         this._disabled = value;
         this.handleDisabled();
     }
-    @track inputOptions;
+    
     @api
     get options() {
-        return this.inputOptions.filter(option => option.value);
+        return this.inputOptions;
     }
     set options(value) {
         let options = [];
         this.inputOptions = options.concat(value);
     }
-    @api
-    clear(){
-        this.handleAllOption();
-    }
-    @track value = [];
-    @track inputValue;
+    
+    
 
-    hasRendered;
     renderedCallback() {
         if (!this.hasRendered) {
             //  we call the logic once, when page rendered first time
@@ -54,10 +61,11 @@ export default class MultiselectCombobox extends LightningElement {
         }
     }
 
-    comboboxIsRendered;
+    
     handleClick() {
         let sldsCombobox = this.template.querySelector(".slds-combobox");
         sldsCombobox.classList.toggle("slds-is-open");
+        // Only happens on the first click
         if (!this.comboboxIsRendered){
             let firstOption = this.template.querySelectorAll('li.slds-listbox__item')[0];
             firstOption.firstChild.classList.add("slds-is-selected");
@@ -75,6 +83,7 @@ export default class MultiselectCombobox extends LightningElement {
         input.focus();
     }
 
+    // Dispatch event to send value to the parent on every change event
     sendValues(){
         let values = [];
         for (const valueObject of this.value) {
@@ -103,7 +112,7 @@ export default class MultiselectCombobox extends LightningElement {
         listBoxOption.classList.toggle("slds-is-selected");
         this.sendValues();
     }
-    dropDownInFocus = false;
+    
 
     handleBlur() {
         if (!this.dropDownInFocus) {
