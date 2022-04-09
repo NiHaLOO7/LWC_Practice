@@ -4,7 +4,7 @@ export default class MultiselectCombobox extends LightningElement {
 
     @api label = "";
 
-    @track value = [];                  // list of all the selected options
+    @track selectedOptions = [];                  // list of all the selected options
     @track inputValue;                  // label that is shown in the input of the combobox
     @track inputOptions;                // List of all the options
     
@@ -40,14 +40,14 @@ export default class MultiselectCombobox extends LightningElement {
         if (!this.hasRendered) {
             //  we call the logic once, when page rendered first time
             this.handleDisabled();
-            this.selectFirstValue();
+            this.setInitialValue();
         }
         this.hasRendered = true;
     }
 
-    selectFirstValue(){
+    setInitialValue(){
         this.inputValue = this.options[0].label;
-        this.value = [this.options[0]];
+        this.selectedOptions = [this.options[0]];
         let values=[this.options[0].value];
         this.dispatchEvent(new CustomEvent("valuechange", {
             detail: values
@@ -86,7 +86,7 @@ export default class MultiselectCombobox extends LightningElement {
     // Dispatch event to send value to the parent on every change event
     sendValues(){
         let values = [];
-        for (const valueObject of this.value) {
+        for (const valueObject of this.selectedOptions) {
             values.push(valueObject.value);
         }
         this.dispatchEvent(new CustomEvent("valuechange", {
@@ -97,17 +97,17 @@ export default class MultiselectCombobox extends LightningElement {
     handleOption(event, value){
         let listBoxOption = event.currentTarget.firstChild;
         if (listBoxOption.classList.contains("slds-is-selected")) {
-            this.value = this.value.filter(option => option.value !== value);
+            this.selectedOptions = this.selectedOptions.filter(option => option.value !== value);
         }
         else {
             let option = this.options.find(option => option.value === value);
-            this.value.push(option);
+            this.selectedOptions.push(option);
         }
-        if (this.value.length > 1) {
-            this.inputValue = this.value.length + ' options selected';
+        if (this.selectedOptions.length > 1) {
+            this.inputValue = this.selectedOptions.length + ' options selected';
         }
         else{
-            this.inputValue = this.value[0].label;
+            this.inputValue = this.selectedOptions[0].label;
         }        
         listBoxOption.classList.toggle("slds-is-selected");
         this.sendValues();
