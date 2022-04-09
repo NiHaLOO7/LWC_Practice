@@ -2,7 +2,7 @@ import { LightningElement, api, track } from 'lwc';
 
 export default class MultiselectCombobox extends LightningElement {
 
-    @api label = "Default label";
+    @api label = "";
     _disabled = false;
     @api
     get disabled(){
@@ -15,57 +15,67 @@ export default class MultiselectCombobox extends LightningElement {
     @track inputOptions;
     @api
     get options() {
-        return this.inputOptions.filter(option => option.value !== 'All');
+        return this.inputOptions.filter(option => option.value);
     }
     set options(value) {
-        let options = [{
-            value: 'All',
-            label: 'All'
-        }];
+        let options = [];
         this.inputOptions = options.concat(value);
     }
     @api
     clear(){
         this.handleAllOption();
     }
-    value = [];
-    @track inputValue = 'All';
+    @track value = [];
+    @track inputValue;
+
     hasRendered;
     renderedCallback() {
         if (!this.hasRendered) {
-            //  we coll the logic once, when page rendered first time
+            //  we call the logic once, when page rendered first time
             this.handleDisabled();
+            this.selectFirstValue();
         }
         this.hasRendered = true;
     }
+
+    selectFirstValue(){
+        this.inputValue = this.options[0].label;
+        this.value = [this.options[0]];
+        let values=[this.options[0].value];
+        this.dispatchEvent(new CustomEvent("valuechange", {
+            detail: values
+        }));
+    }
+
     handleDisabled(){
         let input = this.template.querySelector("input");
         if (input){
             input.disabled = this.disabled;
         }
     }
+
     comboboxIsRendered;
     handleClick() {
         let sldsCombobox = this.template.querySelector(".slds-combobox");
         sldsCombobox.classList.toggle("slds-is-open");
         if (!this.comboboxIsRendered){
-            let allOption = this.template.querySelector('[data-id="All"]');
-            allOption.firstChild.classList.add("slds-is-selected");
+            let firstOption = this.template.querySelectorAll('li.slds-listbox__item')[0];
+            firstOption.firstChild.classList.add("slds-is-selected");
             this.comboboxIsRendered = true;
         }
     }
+
     handleSelection(event) {
         let value = event.currentTarget.dataset.value;
-        if (value === 'All') {
-            this.handleAllOption();
-        }
-        else {
+        let selectedListBoxOptions = this.template.querySelectorAll('.slds-is-selected span.optLabel');
+        if(!(selectedListBoxOptions.length === 1 && selectedListBoxOptions[0].dataset.id === value)){
             this.handleOption(event, value);
         }
         let input = this.template.querySelector("input");
         input.focus();
         this.sendValues();
     }
+
     sendValues(){
         let values = [];
         for (const valueObject of this.value) {
@@ -75,25 +85,13 @@ export default class MultiselectCombobox extends LightningElement {
             detail: values
         }));
     }
-    handleAllOption(){
-        this.value = [];
-        this.inputValue = 'All';
-        let listBoxOptions = this.template.querySelectorAll('.slds-is-selected');
-        for (let option of listBoxOptions) {
-            option.classList.remove("slds-is-selected");
-        }
-        let allOption = this.template.querySelector('[data-id="All"]');
-        allOption.firstChild.classList.add("slds-is-selected");
-        this.closeDropbox();
-    }
+
     handleOption(event, value){
         let listBoxOption = event.currentTarget.firstChild;
         if (listBoxOption.classList.contains("slds-is-selected")) {
             this.value = this.value.filter(option => option.value !== value);
         }
         else {
-            let allOption = this.template.querySelector('[data-id="All"]');
-            allOption.firstChild.classList.remove("slds-is-selected");
             let option = this.options.find(option => option.value === value);
             this.value.push(option);
         }
