@@ -75,8 +75,8 @@ export default class MultiselectCombobox extends LightningElement {
 
     handleSelection(event) {
         let value = event.currentTarget.dataset.value;
-        let selectedListBoxOptions = this.template.querySelectorAll('.slds-is-selected span.optLabel');
-        if(!(selectedListBoxOptions.length === 1 && selectedListBoxOptions[0].dataset.id === value)){
+        let selectedListBoxOptions = this.template.querySelectorAll('.slds-is-selected');
+        if(!(selectedListBoxOptions.length === 1 && selectedListBoxOptions[0].dataset.name === value)){
             this.handleOption(event, value);
         }
         let input = this.template.querySelector("input");
@@ -103,16 +103,19 @@ export default class MultiselectCombobox extends LightningElement {
             let option = this.options.find(option => option.value === value);
             this.selectedOptions.push(option);
         }
+        this.setInputValue();    
+        listBoxOption.classList.toggle("slds-is-selected");
+        this.sendValues();
+    }
+
+    setInputValue(){
         if (this.selectedOptions.length > 1) {
             this.inputValue = this.selectedOptions.length + ' options selected';
         }
         else{
             this.inputValue = this.selectedOptions[0].label;
-        }        
-        listBoxOption.classList.toggle("slds-is-selected");
-        this.sendValues();
+        }
     }
-    
 
     handleBlur() {
         if (!this.dropDownInFocus) {
@@ -132,4 +135,22 @@ export default class MultiselectCombobox extends LightningElement {
         let sldsCombobox = this.template.querySelector(".slds-combobox");
         sldsCombobox.classList.remove("slds-is-open");
     }
+
+    // Pill Actions  ==> If you want to remove the pills, remove these methods 
+     
+    removePill(event){
+        let deletedValue = event.detail.name;
+        if(!(this.selectedOptions.length === 1)){
+            this.unselectTheOption(deletedValue);
+        }
+     }
+ 
+     unselectTheOption(deletedValue){
+         this.selectedOptions = this.selectedOptions.filter(option => option.value !== deletedValue);
+         this.setInputValue();
+         this.template.querySelector(`[data-name="${deletedValue}"]`).classList.remove("slds-is-selected");
+         this.sendValues();
+     }
+     
+ 
 }
