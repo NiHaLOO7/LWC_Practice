@@ -15,6 +15,7 @@ export default class MultiselectCombobox extends LightningElement {
 
     // Disabler.. passed from the parent using setter.
     @track _disabled = false;
+    @track _pills = true;
 
     @api
     get disabled(){
@@ -23,6 +24,14 @@ export default class MultiselectCombobox extends LightningElement {
     set disabled(value){
         this._disabled = value;
         this.handleDisabled();
+    }
+
+    @api
+    get pills(){
+        return this._pills;
+    }
+    set pills(value){
+        this._pills = value;
     }
     
     @api
