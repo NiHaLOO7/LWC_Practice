@@ -48,10 +48,13 @@
                     key={option.value} 
                     class="slds-m-around_xx-small" 
                     name={option.value} 
+                    tabindex="0"
                     label={option.label} 
                     onremove={removePill}>
                 <!-- Icon in the pill -->
-                    <lightning-icon icon-name="standard:user" alternative-text="Account"></lightning-icon>
+                    <template if:true={pillIcon}>
+                        <lightning-icon icon-name={pillIcon} alternative-text="icon"></lightning-icon>
+                    </template>
                 </lightning-pill>
             </template>
         </template>      
